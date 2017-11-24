@@ -55,6 +55,7 @@
   "and_more_amount":"ו{amount} עוד",
   "post_reply_title":"זהו מענה ל{title}",
   "post_reply_show_original_post":"הראה פוסט מקורי",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion":"הצג דיון הורה",
   "comment":"תגובה",
   "comment_placeholder":"כתוב תגובה",

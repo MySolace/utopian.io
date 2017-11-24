@@ -57,6 +57,7 @@
   "and_more_amount": "و {amount} آخرين",
   "post_reply_title": "هذا رد على: {title}",
   "post_reply_show_original_post": "إظهار المنشور الأصلي",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "إظهار المناقشة الأصلية",
   "comment": "تعليق",
   "comment_placeholder": "كتابة تعليق",

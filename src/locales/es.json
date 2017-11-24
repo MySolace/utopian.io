@@ -57,6 +57,7 @@
   "and_more_amount": "y {amount} más",
   "post_reply_title": "Esta es una respuesta a: {title}",
   "post_reply_show_original_post": "Mostrar post original",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Mostrar discusión matriz",
   "comment": "Comentario",
   "comment_placeholder": "Escribir un comentario",

@@ -57,6 +57,7 @@
   "and_more_amount": "og {amount} flere",
   "post_reply_title": "Dette er et svar til: {title}",
   "post_reply_show_original_post": "Vis opprinnelig innhold",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Vis overordnet diskusjon",
   "comment": "Kommentar",
   "comment_placeholder": "Skriv en kommentar",

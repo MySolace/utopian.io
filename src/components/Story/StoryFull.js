@@ -1,33 +1,64 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { injectIntl, FormattedMessage, FormattedRelative, FormattedDate, FormattedTime } from 'react-intl';
-import { Link } from 'react-router-dom';
-import { Tag, Icon, Popover, Tooltip } from 'antd';
-import { find } from 'lodash';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import Lightbox from 'react-image-lightbox';
-import { formatter } from 'steem';
 import {
-  getComments,
-  getCommentsList,
-  getCommentsPendingVotes,
-  getIsAuthenticated,
-  getAuthenticatedUserName,
+    injectIntl,
+    FormattedMessage,
+    FormattedRelative,
+    FormattedDate,
+    FormattedTime
+} from 'react-intl';
+import {
+    Link
+} from 'react-router-dom';
+import {
+    Tag,
+    Icon,
+    Popover,
+    Tooltip
+} from 'antd';
+import {
+    find
+} from 'lodash';
+import {
+    bindActionCreators
+} from 'redux';
+import {
+    connect
+} from 'react-redux';
+import Lightbox from 'react-image-lightbox';
+import {
+    formatter
+} from 'steem';
+import {
+    getComments,
+    getCommentsList,
+    getCommentsPendingVotes,
+    getIsAuthenticated,
+    getAuthenticatedUserName,
 } from '../../reducers';
+import {
+    isPostDeleted
+} from '../helpers/postHelpers';
 import Body from './Body';
+import StoryDeleted from './StoryDeleted';
 import StoryFooter from './StoryFooter';
 import Avatar from '../Avatar';
 import Topic from '../Button/Topic';
-import PopoverMenu, { PopoverMenuItem } from '../PopoverMenu/PopoverMenu';
+import PopoverMenu, {
+    PopoverMenuItem
+} from '../PopoverMenu/PopoverMenu';
 import Action from '../../components/Button/Action';
 import CommentForm from '../../components/Comments/CommentForm';
 import Comments from "../../components/Comments/Comments";
 import BanUser from '../../components/BanUser';
 import * as commentsActions from '../../comments/commentsActions';
-import { Modal } from 'antd';
-import { notify } from '../../app/Notification/notificationActions';
+import {
+    Modal
+} from 'antd';
+import {
+    notify
+} from '../../app/Notification/notificationActions';
 
 import Blog from './Blog';
 import Contribution from './Contribution';
@@ -36,269 +67,395 @@ import * as R from 'ramda';
 import './StoryFull.less';
 
 @connect(
-  state => ({
-    authenticated: getIsAuthenticated(state),
-  }),
-  dispatch => bindActionCreators({
-    sendComment: (parentPost, body, isUpdating, originalPost) =>
-      commentsActions.sendComment(parentPost, body, isUpdating, originalPost),
-    notify,
-  }, dispatch),
+    state => ({
+        authenticated: getIsAuthenticated(state),
+    }),
+    dispatch => bindActionCreators({
+        sendComment: (parentPost, body, isUpdating, originalPost) =>
+            commentsActions.sendComment(parentPost, body, isUpdating, originalPost),
+        notify,
+    }, dispatch),
 )
 
 @injectIntl
 class StoryFull extends React.Component {
-  static propTypes = {
-    intl: PropTypes.shape().isRequired,
-    post: PropTypes.shape().isRequired,
-    postState: PropTypes.shape().isRequired,
-    pendingLike: PropTypes.bool,
-    pendingFollow: PropTypes.bool,
-    pendingBookmark: PropTypes.bool,
-    commentCount: PropTypes.number,
-    saving: PropTypes.bool,
-    ownPost: PropTypes.bool,
-    onFollowClick: PropTypes.func,
-    onSaveClick: PropTypes.func,
-    onReportClick: PropTypes.func,
-    onLikeClick: PropTypes.func,
-    onShareClick: PropTypes.func,
-    onEditClick: PropTypes.func,
-    sendComment: PropTypes.func,
-    user: PropTypes.object.isRequired,
-    moderatorAction: PropTypes.func.isRequired,
-    moderators: PropTypes.array
-  };
+        static propTypes = {
+            intl: PropTypes.shape().isRequired,
+            post: PropTypes.shape().isRequired,
+            postState: PropTypes.shape().isRequired,
+            pendingLike: PropTypes.bool,
+            pendingFollow: PropTypes.bool,
+            pendingBookmark: PropTypes.bool,
+            commentCount: PropTypes.number,
+            saving: PropTypes.bool,
+            ownPost: PropTypes.bool,
+            onFollowClick: PropTypes.func,
+            onSaveClick: PropTypes.func,
+            onReportClick: PropTypes.func,
+            onLikeClick: PropTypes.func,
+            onShareClick: PropTypes.func,
+            onEditClick: PropTypes.func,
+            sendComment: PropTypes.func,
+            user: PropTypes.object.isRequired,
+            moderatorAction: PropTypes.func.isRequired,
+            moderators: PropTypes.array
+        };
 
-  static defaultProps = {
-    user: {},
-    moderatorAction: () => { },
-    moderators: [],
-    pendingLike: false,
-    pendingFollow: false,
-    pendingBookmark: false,
-    commentCount: 0,
-    saving: false,
-    ownPost: false,
-    onFollowClick: () => { },
-    onSaveClick: () => { },
-    onReportClick: () => { },
-    onLikeClick: () => { },
-    onShareClick: () => { },
-    onEditClick: () => { },
-    sendComment: () => { },
-    postState: {}
-  };
+        static defaultProps = {
+            user: {},
+            moderatorAction: () => {},
+            moderators: [],
+            pendingLike: false,
+            pendingFollow: false,
+            pendingBookmark: false,
+            commentCount: 0,
+            saving: false,
+            ownPost: false,
+            onFollowClick: () => {},
+            onSaveClick: () => {},
+            onReportClick: () => {},
+            onLikeClick: () => {},
+            onShareClick: () => {},
+            onEditClick: () => {},
+            sendComment: () => {},
+            postState: {}
+        };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      verifyModal: false,
-      moderatorCommentModal: false,
-      reviewsource: 0,
-      commentDefaultFooter: '\n\nYou can contact us on [Discord](https://discord.gg/UCvqCsx).\n**[[utopian-moderator]](https://utopian.io/moderators)**',
-      commentFormText: '\n\nYou can contact us on [Discord](https://discord.gg/UCvqCsx).\n**[[utopian-moderator]](https://utopian.io/moderators)**',
-      modTemplate: '',
-      lightbox: {
-        open: false,
-        index: 0,
-      },
-    };
-  }
-
-  componentDidMount() {
-    document.body.classList.add('white-bg');
-  }
-
-  componentWillUnmount() {
-    document.body.classList.remove('white-bg');
-  }
-
-  handleClick = (key) => {
-    switch (key) {
-      case 'follow':
-        this.props.onFollowClick(this.props.post);
-        return;
-      case 'save':
-        this.props.onSaveClick();
-        return;
-      case 'report':
-        this.props.onReportClick();
-        break;
-      case 'edit':
-        this.props.onEditClick();
-        break;
-      default:
-    }
-  };
-
-
-  handleContentClick = (e) => {
-    if (e.target.tagName === 'IMG') {
-      const tags = this.contentDiv.getElementsByTagName('img');
-      for (let i = 0; i < tags.length; i += 1) {
-        if (tags[i] === e.target) {
-          this.setState({
-            lightbox: {
-              open: true,
-              index: i,
-            },
-          });
+        constructor(props) {
+            super(props);
+            this.state = {
+                verifyModal: false,
+                moderatorCommentModal: false,
+                reviewsource: 0,
+                commentDefaultFooter: '\n\nYou can contact us on [Discord](https://discord.gg/UCvqCsx).\n**[[utopian-moderator]](https://utopian.io/moderators)**',
+                commentFormText: '\n\nYou can contact us on [Discord](https://discord.gg/UCvqCsx).\n**[[utopian-moderator]](https://utopian.io/moderators)**',
+                modTemplate: '',
+                lightbox: {
+                    open: false,
+                    index: 0,
+                },
+            };
         }
-      }
-    }
-  };
 
-  setModTemplateByName(name) {
-    /* Moderator Templates Variable */
-    var editImage = "![](https://res.cloudinary.com/hpiynhbhq/image/upload/v1509788371/nbgbomithszxs3nxq6gx.png)";
-    var modTemplates = {
-      "pendingDefault": 'Your contribution cannot be approved yet. See the [Utopian Rules](https://utopian.io/rules). Please edit your contribution to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingWrongRepo": 'Your contribution cannot be approved yet because it is attached to the wrong repository. Please edit your contribution and fix the repository to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingWrongRepoSpecified": 'Your contribution cannot be approved yet because it is attached to the wrong repository. Please edit your contribution and fix the repository to **`-/-`** to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingPow": 'Your contribution cannot be approved yet because it does not have **proof of work**. See the [Utopian Rules](https://utopian.io/rules). Please edit your contribution and add **proof** (links, screenshots, commits, etc) of your work, to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingTooShort": 'Your contribution cannot be approved yet because it is not as informative as other contributions. See the [Utopian Rules](https://utopian.io/rules). Please edit your contribution and add try to improve the length and detail of your contribution (or add more images/mockups/screenshots), to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingNotEnglish": 'Your contribution cannot be approved yet, because the contribution category you have chosen requires your post to be in English. See the [Utopian Rules](https://utopian.io/rules). Please edit your post if possible, and change the language to English, to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingWrongCategory": 'Your contribution cannot be approved yet, because it is in the **wrong category.** The correct category for your post is `NEW-CATEGORY`. See the [Utopian Rules](https://utopian.io/rules). Please edit your post to use the right category at [this link](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingBadTags": 'Your contribution cannot be approved yet, because it has irrelevant tags. See the [Utopian Rules](https://utopian.io/rules). Please edit your post to use more relevant tags at [this link](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "pendingBanner": 'Your contribution cannot be approved yet, because it has a distracting **banner** or other irrelevant large image. See the [Utopian Rules](https://utopian.io/rules). Please edit your post to exclude any banners, at [this link](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
-      "flaggedDefault": 'Your contribution cannot be approved because it does not follow the [Utopian Rules](https://utopian.io/rules).',
-      "flaggedDuplicate": 'Your contribution cannot be approved because it is a duplicate. It is very similar to a contribution that was already accepted [here](#PLACE-DUPLICATE-LINK-HERE).',
-      "flaggedNotOpenSource": 'Your contribution cannot be approved because it does not refer to or relate to an **open-source** repository. See [here](https://opensource.com/resources/what-open-source) for a definition of "open-source."',
-      "flaggedSpam": 'Your contribution cannot be approved because it does not follow the [Utopian Rules](https://utopian.io/rules), and is considered as **spam**.',
-      "flaggedPlagiarism": 'Your contribution cannot be approved because it does not follow the [Utopian Rules](https://utopian.io/rules), and is considered as **plagiarism**. Plagiarism is not allowed on Utopian, and posts that engage in plagiarism will be flagged and hidden forever.',
-      "flaggedTooShort": 'Your contribution cannot be approved because it is not as informative as other contributions. See the [Utopian Rules](https://utopian.io/rules). Contributions need to be informative and descriptive in order to help readers and developers understand them.',
-      "flaggedNotEnglish": 'Your contribution cannot be approved because the contribution category you have chosen requires your post to be in English. See the [Utopian Rules](https://utopian.io/rules).'
-    }
-    this.setState({ modTemplate: name });
-    this.setState({ commentFormText: modTemplates[name] + this.state.commentDefaultFooter });
-  }
-  setModTemplate(event) {
-    this.setModTemplateByName(event.target.value);
-  }
+        componentDidMount() {
+            document.body.classList.add('white-bg');
+        }
 
-  render() {
-    const {
-      intl,
-      user,
-      username,
-      post,
-      postState,
-      pendingLike,
-      pendingFollow,
-      pendingBookmark,
-      commentCount,
-      saving,
-      ownPost,
-      onLikeClick,
-      onShareClick,
-      moderatorAction,
-      moderators,
-      history,
-    } = this.props;
+        componentWillUnmount() {
+            document.body.classList.remove('white-bg');
+        }
 
-    const { open, index } = this.state.lightbox;
-    const images = post.json_metadata.image;
-    const tags = _.union(post.json_metadata.tags, [post.category]);
-    const video = post.json_metadata.video;
-    const isLogged = Object.keys(user).length;
-    const isAuthor = isLogged && user.name === post.author;
-    const isModerator = isLogged && R.find(R.propEq('account', user.name))(moderators) && !isAuthor;
-    const reviewed = post.reviewed || false;
+        handleClick = (key) => {
+            switch (key) {
+                case 'follow':
+                    this.props.onFollowClick(this.props.post);
+                    return;
+                case 'save':
+                    this.props.onSaveClick();
+                    return;
+                case 'report':
+                    this.props.onReportClick();
+                    break;
+                case 'edit':
+                    this.props.onEditClick();
+                    break;
+                default:
+            }
+        };
 
-    let followText = '';
 
-    if (postState.userFollowed && !pendingFollow) {
-      followText = intl.formatMessage({ id: 'unfollow_username', defaultMessage: 'Unfollow {username}' }, { username: post.author });
-    } else if (postState.userFollowed && pendingFollow) {
-      followText = intl.formatMessage({ id: 'unfollow_username', defaultMessage: 'Unfollow {username}' }, { username: post.author });
-    } else if (!postState.userFollowed && !pendingFollow) {
-      followText = intl.formatMessage({ id: 'follow_username', defaultMessage: 'Follow {username}' }, { username: post.author });
-    } else if (!postState.userFollowed && pendingFollow) {
-      followText = intl.formatMessage({ id: 'follow_username', defaultMessage: 'Follow {username}' }, { username: post.author });
-    }
+        handleContentClick = (e) => {
+            if (e.target.tagName === 'IMG') {
+                const tags = this.contentDiv.getElementsByTagName('img');
+                for (let i = 0; i < tags.length; i += 1) {
+                    if (tags[i] === e.target) {
+                        this.setState({
+                            lightbox: {
+                                open: true,
+                                index: i,
+                            },
+                        });
+                    }
+                }
+            }
+        };
 
-    let replyUI = null;
+        setModTemplateByName(name) {
+            /* Moderator Templates Variable */
+            var editImage = "![](https://res.cloudinary.com/hpiynhbhq/image/upload/v1509788371/nbgbomithszxs3nxq6gx.png)";
+            var modTemplates = {
+                "pendingDefault": 'Your contribution cannot be approved yet. See the [Utopian Rules](https://utopian.io/rules). Please edit your contribution to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingWrongRepo": 'Your contribution cannot be approved yet because it is attached to the wrong repository. Please edit your contribution and fix the repository to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingWrongRepoSpecified": 'Your contribution cannot be approved yet because it is attached to the wrong repository. Please edit your contribution and fix the repository to **`-/-`** to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingPow": 'Your contribution cannot be approved yet because it does not have **proof of work**. See the [Utopian Rules](https://utopian.io/rules). Please edit your contribution and add **proof** (links, screenshots, commits, etc) of your work, to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingTooShort": 'Your contribution cannot be approved yet because it is not as informative as other contributions. See the [Utopian Rules](https://utopian.io/rules). Please edit your contribution and add try to improve the length and detail of your contribution (or add more images/mockups/screenshots), to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingNotEnglish": 'Your contribution cannot be approved yet, because the contribution category you have chosen requires your post to be in English. See the [Utopian Rules](https://utopian.io/rules). Please edit your post if possible, and change the language to English, to reapply for approval.\n\nYou may edit your post [here](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingWrongCategory": 'Your contribution cannot be approved yet, because it is in the **wrong category.** The correct category for your post is `NEW-CATEGORY`. See the [Utopian Rules](https://utopian.io/rules). Please edit your post to use the right category at [this link](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingBadTags": 'Your contribution cannot be approved yet, because it has irrelevant tags. See the [Utopian Rules](https://utopian.io/rules). Please edit your post to use more relevant tags at [this link](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "pendingBanner": 'Your contribution cannot be approved yet, because it has a distracting **banner** or other irrelevant large image. See the [Utopian Rules](https://utopian.io/rules). Please edit your post to exclude any banners, at [this link](https://utopian.io/utopian-io/@' + this.props.post.author + '/' + this.props.post.permlink + '), as shown below: \n' + editImage,
+                "flaggedDefault": 'Your contribution cannot be approved because it does not follow the [Utopian Rules](https://utopian.io/rules).',
+                "flaggedDuplicate": 'Your contribution cannot be approved because it is a duplicate. It is very similar to a contribution that was already accepted [here](#PLACE-DUPLICATE-LINK-HERE).',
+                "flaggedNotOpenSource": 'Your contribution cannot be approved because it does not refer to or relate to an **open-source** repository. See [here](https://opensource.com/resources/what-open-source) for a definition of "open-source."',
+                "flaggedSpam": 'Your contribution cannot be approved because it does not follow the [Utopian Rules](https://utopian.io/rules), and is considered as **spam**.',
+                "flaggedPlagiarism": 'Your contribution cannot be approved because it does not follow the [Utopian Rules](https://utopian.io/rules), and is considered as **plagiarism**. Plagiarism is not allowed on Utopian, and posts that engage in plagiarism will be flagged and hidden forever.',
+                "flaggedTooShort": 'Your contribution cannot be approved because it is not as informative as other contributions. See the [Utopian Rules](https://utopian.io/rules). Contributions need to be informative and descriptive in order to help readers and developers understand them.',
+                "flaggedNotEnglish": 'Your contribution cannot be approved because the contribution category you have chosen requires your post to be in English. See the [Utopian Rules](https://utopian.io/rules).'
+            }
+            this.setState({
+                modTemplate: name
+            });
+            this.setState({
+                commentFormText: modTemplates[name] + this.state.commentDefaultFooter
+            });
+        }
+        setModTemplate(event) {
+            this.setModTemplateByName(event.target.value);
+        }
 
-    if (post.depth !== 0) {
-      replyUI = (
-        <div className="StoryFull__reply">
-          <h3 className="StoryFull__reply__title">
-            <FormattedMessage id="post_reply_title" defaultMessage="This is a reply to: {title}" values={{ title: post.root_title }} />
-          </h3>
-          <h4>
-            <Link to={post.url}>
-              <FormattedMessage id="post_reply_show_original_post" defaultMessage="Show original post" />
-            </Link>
-          </h4>
-          {post.depth > 1 && <h4>
-            <Link to={`/${post.category}/@${post.parent_author}/${post.parent_permlink}`}>
-              <FormattedMessage id="post_reply_show_parent_discussion" defaultMessage="Show parent discussion" />
-            </Link>
-          </h4>}
-        </div>
-      );
-    }
+        render() {
+                const {
+                    intl,
+                    user,
+                    username,
+                    post,
+                    postState,
+                    pendingLike,
+                    pendingFollow,
+                    pendingBookmark,
+                    commentCount,
+                    saving,
+                    ownPost,
+                    onLikeClick,
+                    onShareClick,
+                    moderatorAction,
+                    moderators,
+                    history,
+                } = this.props;
 
-    let popoverMenu = [];
+                const {
+                    open,
+                    index
+                } = this.state.lightbox;
+                const images = post.json_metadata.image;
+                const tags = _.union(post.json_metadata.tags, [post.category]);
+                const video = post.json_metadata.video;
+                const isLogged = Object.keys(user).length;
+                const isAuthor = isLogged && user.name === post.author;
+                const isModerator = isLogged && R.find(R.propEq('account', user.name))(moderators) && !isAuthor;
+                const reviewed = post.reviewed || false;
 
-    if (ownPost && post.cashout_time !== '1969-12-31T23:59:59') {
-      popoverMenu = [...popoverMenu, <PopoverMenuItem key="edit">
-        {saving ? <Icon type="loading" /> : <i className="iconfont icon-write" />}
-        <FormattedMessage id="edit_post" defaultMessage="Edit post" />
-      </PopoverMenuItem>];
-    }
+                let followText = '';
 
-    if (!ownPost) {
-      popoverMenu = [...popoverMenu, <PopoverMenuItem key="follow" disabled={pendingFollow}>
-        {pendingFollow ? <Icon type="loading" /> : <i className="iconfont icon-people" />}
-        {followText}
-      </PopoverMenuItem>];
-    }
+                if (postState.userFollowed && !pendingFollow) {
+                    followText = intl.formatMessage({
+                        id: 'unfollow_username',
+                        defaultMessage: 'Unfollow {username}'
+                    }, {
+                        username: post.author
+                    });
+                } else if (postState.userFollowed && pendingFollow) {
+                    followText = intl.formatMessage({
+                        id: 'unfollow_username',
+                        defaultMessage: 'Unfollow {username}'
+                    }, {
+                        username: post.author
+                    });
+                } else if (!postState.userFollowed && !pendingFollow) {
+                    followText = intl.formatMessage({
+                        id: 'follow_username',
+                        defaultMessage: 'Follow {username}'
+                    }, {
+                        username: post.author
+                    });
+                } else if (!postState.userFollowed && pendingFollow) {
+                    followText = intl.formatMessage({
+                        id: 'follow_username',
+                        defaultMessage: 'Follow {username}'
+                    }, {
+                        username: post.author
+                    });
+                }
 
-    popoverMenu = [
-      ...popoverMenu,
-      <PopoverMenuItem key="save">
-        {pendingBookmark ? <Icon type="loading" /> : <i className="iconfont icon-collection" />}
-        <FormattedMessage
-          id={postState.isSaved ? 'unsave_post' : 'save_post'}
-          defaultMessage={postState.isSaved ? 'Unsave post' : 'Save post'}
-        />
-      </PopoverMenuItem>,
-      <PopoverMenuItem key="report">
-        <i className="iconfont icon-flag" />
-        <FormattedMessage id="report_post" defaultMessage="Report post" />
-      </PopoverMenuItem>,
-    ];
+                let replyUI = null;
 
-    const metaData = post.json_metadata;
-    const repository = metaData.repository;
-    const postType = post.json_metadata.type;
-    const alreadyChecked = isModerator && (post.reviewed || post.pending || post.flagged);
+                if (post.depth !== 0) {
+                    replyUI = ( <
+                        div className = "StoryFull__reply" >
+                        <
+                        h3 className = "StoryFull__reply__title" >
+                        <
+                        FormattedMessage id = "post_reply_title"
+                        defaultMessage = "This is a reply to: {title}"
+                        values = {
+                            {
+                                title: post.root_title
+                            }
+                        }
+                        /> < /
+                        h3 > <
+                        h4 >
+                        <
+                        Link to = {
+                            post.url
+                        } >
+                        <
+                        FormattedMessage id = "post_reply_show_original_post"
+                        defaultMessage = "Show original post" / >
+                        <
+                        /Link> < /
+                        h4 > {
+                            post.depth > 1 && < h4 >
+                            <
+                            Link to = {
+                                `/${post.category}/@${post.parent_author}/${post.parent_permlink}`
+                            } >
+                            <
+                            FormattedMessage id = "post_reply_show_parent_discussion"
+                            defaultMessage = "Show parent discussion" / >
+                            <
+                            /Link> < /
+                            h4 >
+                        } <
+                        /div>
+                    );
+                }
 
-    return (
-      <div className="StoryFull">
-        {!reviewed || alreadyChecked ? <div className="StoryFull__review">
+                let popoverMenu = [];
 
-          {!alreadyChecked ? <h3>
-            <Icon type="safety" /> {!isModerator ? 'Under Review' : 'Review Contribution'}
-          </h3> : null}
+                if (ownPost && post.cashout_time !== '1969-12-31T23:59:59') {
+                    popoverMenu = [...popoverMenu, < PopoverMenuItem key = "edit" > {
+                            saving ? < Icon type = "loading" / > : < i className = "iconfont icon-write" / >
+                        } <
+                        FormattedMessage id = "edit_post"
+                        defaultMessage = "Edit post" / >
+                        <
+                        /PopoverMenuItem>];
+                    }
 
-          {!isModerator ? <p>
-            A moderator will review this contribution within 24-48 hours and suggest changes if necessary. This is to ensure the quality of the contributions and promote collaboration inside Utopian.
-                {isAuthor ? ' Check the comments often to see if a moderator is requesting for some changes. ' : null}
-          </p> : null}
+                    if (!ownPost) {
+                        popoverMenu = [...popoverMenu, < PopoverMenuItem key = "follow"
+                            disabled = {
+                                pendingFollow
+                            } > {
+                                pendingFollow ? < Icon type = "loading" / > : < i className = "iconfont icon-people" / >
+                            } {
+                                followText
+                            } <
+                            /PopoverMenuItem>];
+                        }
 
-          {isModerator && !alreadyChecked ? <p>
-            Hello Moderator. How are you today? <br />
-            Please make sure this contribution meets the{' '}<Link to="/rules">Utopian Quality Standards</Link>.<br />
-          </p> : null}
+                        popoverMenu = [
+                            ...popoverMenu, <
+                            PopoverMenuItem key = "save" > {
+                                pendingBookmark ? < Icon type = "loading" / > : < i className = "iconfont icon-collection" / >
+                            } <
+                            FormattedMessage
+                            id = {
+                                postState.isSaved ? 'unsave_post' : 'save_post'
+                            }
+                            defaultMessage = {
+                                postState.isSaved ? 'Unsave post' : 'Save post'
+                            }
+                            /> < /
+                            PopoverMenuItem > , <
+                            PopoverMenuItem key = "report" >
+                            <
+                            i className = "iconfont icon-flag" / >
+                            <
+                            FormattedMessage id = "report_post"
+                            defaultMessage = "Report post" / >
+                            <
+                            /PopoverMenuItem>,
+                        ];
 
-          {isModerator && alreadyChecked ? <div>
-            <h3><Icon type="safety" /> Moderation Status</h3>
-            {post.reviewed && <p><b>ACCEPTED BY:</b> <Link className="StoryFull__modlink" to={`/@${post.moderator}`}>@{post.moderator}</Link></p>}
-            {post.flagged && <p><b>HIDDEN BY:</b> <Link className="StoryFull__modlink" to={`/@${post.moderator}`}>@{post.moderator}</Link></p>}
-            {post.pending && <p><b>PENDING REVIEW:</b> <Link className="StoryFull__modlink" to={`/@${post.moderator}`}>@{post.moderator}</Link></p>}
+                        //	Handing deleted posts.
+
+                        let content = null;
+                        if (isPostDeleted(post)) {
+                            content = < StoryDeleted / > ;
+                        } else {
+                            content = ( <
+                                div role = "presentation"
+                                ref = {
+                                    (div) => {
+                                        this.contentDiv = div;
+                                    }
+                                }
+                                onClick = {
+                                    this.handleContentClick
+                                } > {
+                                    _.has(video, 'content.videohash') &&
+                                    _.has(video, 'info.snaphash') && ( <
+                                        video controls src = {
+                                            `https://ipfs.io/ipfs/${video.content.videohash}`
+                                        }
+                                        poster = {
+                                            `https://ipfs.io/ipfs/${video.info.snaphash}`
+                                        } >
+                                        <
+                                        track kind = "captions" / >
+                                        <
+                                        /video>
+                                    )
+                                } <
+                                Body full body = {
+                                    post.body
+                                }
+                                json_metadata = {
+                                    post.json_metadata
+                                }
+                                /> < /
+                                div >
+                            );
+                        }
+
+                        const metaData = post.json_metadata;
+                        const repository = metaData.repository;
+                        const postType = post.json_metadata.type;
+                        const alreadyChecked = isModerator && (post.reviewed || post.pending || post.flagged);
+
+                        return ( <
+                                div className = "StoryFull" > {!reviewed || alreadyChecked ? < div className = "StoryFull__review" >
+
+                                    {!alreadyChecked ? < h3 >
+                                        <
+                                        Icon type = "safety" / > {!isModerator ? 'Under Review' : 'Review Contribution'
+                                        } <
+                                        /h3> : null}
+
+                                        {
+                                            !isModerator ? < p >
+                                                A moderator will review this contribution within 24 - 48 hours and suggest changes
+                                            if necessary.This is to ensure the quality of the contributions and promote collaboration inside Utopian. {
+                                                    isAuthor ? ' Check the comments often to see if a moderator is requesting for some changes. ' : null
+                                                } <
+                                                /p> : null}
+
+                                            {
+                                                isModerator && !alreadyChecked ? < p >
+                                                    Hello Moderator.How are you today ? < br / >
+                                                    Please make sure this contribution meets the {
+                                                        ' '
+                                                    } < Link to = "/rules" > Utopian Quality Standards < /Link>.<br / >
+                                                    <
+                                                    /p> : null}
+
+                                                {
+                                                    isModerator && alreadyChecked ? < div >
+                                                        <
+                                                        h3 > < Icon type = "safety" / > Moderation Status < /h3> {
+                                                    post.reviewed && < p > < b > ACCEPTED BY: < /b> <Link className="StoryFull__modlink" to={`/@$ {
+                                                        post.moderator
+                                                    }
+                                                    `}>@{post.moderator}</Link></p>}
+            {post.flagged && <p><b>HIDDEN BY:</b> <Link className="StoryFull__modlink" to={` / @$ {
+                                                        post.moderator
+                                                    }
+                                                    `}>@{post.moderator}</Link></p>}
+            {post.pending && <p><b>PENDING REVIEW:</b> <Link className="StoryFull__modlink" to={` / @$ {
+                                                        post.moderator
+                                                    }
+                                                    `}>@{post.moderator}</Link></p>}
           </div> : null}
 
           {isModerator ? <div>
@@ -494,139 +651,249 @@ class StoryFull extends React.Component {
               const formData = new FormData();
               formData.append('files', blob);
 
-              fetch(`https://busy-img.herokuapp.com/@${username}/uploads`, {
-                method: 'POST',
-                body: formData,
-              })
-                .then(res => res.json())
-                .then(res => callback(res.secure_url, blob.name))
-                .catch(() => errorCallback());
-            }}
-          />
-        </Modal>
+              fetch(`
+                                                    https: //busy-img.herokuapp.com/@${username}/uploads`, {
+                                                        method: 'POST',
+                                                        body: formData,
+                                                })
+                                            .then(res => res.json())
+                                                .then(res => callback(res.secure_url, blob.name))
+                                                .catch(() => errorCallback());
+                                        }
+                                    }
+                                    /> < /
+                                    Modal >
 
-        {replyUI}
+                                    {
+                                        replyUI
+                                    }
 
-        <h1 className="StoryFull__title">
-          {post.title}
-        </h1>
-        <h3 className="StoryFull__comments_title">
-          <a href="#comments">
-            <FormattedMessage
-              id="comments_count"
-              values={{ count: intl.formatNumber(commentCount) }}
-              defaultMessage="{count} comments"
-            />
-          </a>
-        </h3>
-        <div className="StoryFull__header">
-          <Link to={`/@${post.author}`}>
-            <Avatar username={post.author} size={60} />
-          </Link>
-          <div className="StoryFull__header__text">
-            <Link to={`/@${post.author}`}>
-              {post.author}
-              <Tooltip title={intl.formatMessage({ id: 'reputation_score', defaultMessage: 'Reputation score' })}>
-                <Tag>
-                  {formatter.reputation(post.author_reputation)}
-                </Tag>
-              </Tooltip>
-            </Link>
-            <Tooltip
-              title={
-                <span>
-                  <FormattedDate value={`${post.created}Z`} />{' '}
-                  <FormattedTime value={`${post.created}Z`} />
-                </span>
-              }
-            >
-              <span className="StoryFull__header__text__date">
-                <FormattedRelative value={`${post.created}Z`} />
-              </span>
-            </Tooltip>
-          </div>
-          <Popover
-            placement="bottomRight"
-            trigger="click"
-            content={
-              <PopoverMenu onSelect={this.handleClick} bold={false}>
-                {popoverMenu}
-              </PopoverMenu>
-            }
-          >
-            <i className="iconfont icon-more StoryFull__header__more" />
-          </Popover>
-        </div>
-        <div
-          role="presentation"
-          ref={(div) => {
-            this.contentDiv = div;
-          }}
-          onClick={this.handleContentClick}
-        >
-          {_.has(video, 'content.videohash') && _.has(video, 'info.snaphash') &&
-            <video
-              controls
-              src={`https://ipfs.io/ipfs/${video.content.videohash}`}
-              poster={`https://ipfs.io/ipfs/${video.info.snaphash}`}
-            >
-              <track kind="captions" />
-            </video>
-          }
-          <Body full body={post.body} json_metadata={post.json_metadata} />
-        </div>
-        {open &&
-          <Lightbox
-            mainSrc={images[index]}
-            nextSrc={images[(index + 1) % images.length]}
-            prevSrc={images[(index + (images.length - 1)) % images.length]}
-            onCloseRequest={() => {
-              this.setState({
-                lightbox: {
-                  ...this.state.lightbox,
-                  open: false,
-                },
-              });
-            }}
-            onMovePrevRequest={() =>
-              this.setState({
-                lightbox: {
-                  ...this.state.lightbox,
-                  index: (index + (images.length - 1)) % images.length,
-                },
-              })}
-            onMoveNextRequest={() =>
-              this.setState({
-                lightbox: {
-                  ...this.state.lightbox,
-                  index: (index + (images.length + 1)) % images.length,
-                },
-              })}
-          />}
-        <div className="StoryFull__topics">
-          {tags && tags.map(tag => <Topic key={tag} name={tag} />)}
-        </div>
-        {metaData.pullRequests && metaData.pullRequests.length > 0 ?
-          <div>
-            <h3><Icon type="github" /> Linked Pull Requests</h3>
-            <ul className="StoryFull__pullrequests">
-              {metaData.pullRequests.map(pr => (
-                <li key={pr.id} className="StoryFull__pullrequest">
-                  <a target="_blank" href={pr.html_url}>{pr.title}</a>
-                </li>
-              ))}
-            </ul>
-          </div> : null}
-        {reviewed && <StoryFooter
-          post={post}
-          postState={postState}
-          pendingLike={pendingLike}
-          onLikeClick={onLikeClick}
-          onShareClick={onShareClick}
-        />}
-      </div>
-    );
-  }
-}
+                                    <
+                                    h1 className = "StoryFull__title" > {
+                                        post.title
+                                    } <
+                                    /h1> <
+                                    h3 className = "StoryFull__comments_title" >
+                                    <
+                                    a href = "#comments" >
+                                    <
+                                    FormattedMessage
+                                    id = "comments_count"
+                                    values = {
+                                        {
+                                            count: intl.formatNumber(commentCount)
+                                        }
+                                    }
+                                    defaultMessage = "{count} comments" /
+                                    >
+                                    <
+                                    /a> < /
+                                    h3 > <
+                                    div className = "StoryFull__header" >
+                                    <
+                                    Link to = {
+                                        `/@${post.author}`
+                                    } >
+                                    <
+                                    Avatar username = {
+                                        post.author
+                                    }
+                                    size = {
+                                        60
+                                    }
+                                    /> < /
+                                    Link > <
+                                    div className = "StoryFull__header__text" >
+                                    <
+                                    Link to = {
+                                        `/@${post.author}`
+                                    } > {
+                                        post.author
+                                    } <
+                                    Tooltip title = {
+                                        intl.formatMessage({
+                                            id: 'reputation_score',
+                                            defaultMessage: 'Reputation score'
+                                        })
+                                    } >
+                                    <
+                                    Tag > {
+                                        formatter.reputation(post.author_reputation)
+                                    } <
+                                    /Tag> < /
+                                    Tooltip > <
+                                    /Link> <
+                                    Tooltip
+                                    title = { <
+                                        span >
+                                        <
+                                        FormattedDate value = {
+                                            `${post.created}Z`
+                                        }
+                                        />{' '} <
+                                        FormattedTime value = {
+                                            `${post.created}Z`
+                                        }
+                                        /> < /
+                                        span >
+                                    } >
+                                    <
+                                    span className = "StoryFull__header__text__date" >
+                                    <
+                                    FormattedRelative value = {
+                                        `${post.created}Z`
+                                    }
+                                    /> < /
+                                    span > <
+                                    /Tooltip> < /
+                                    div > <
+                                    Popover
+                                    placement = "bottomRight"
+                                    trigger = "click"
+                                    content = { <
+                                        PopoverMenu onSelect = {
+                                            this.handleClick
+                                        }
+                                        bold = {
+                                            false
+                                        } > {
+                                            popoverMenu
+                                        } <
+                                        /PopoverMenu>
+                                    } >
+                                    <
+                                    i className = "iconfont icon-more StoryFull__header__more" / >
+                                    <
+                                    /Popover> < /
+                                    div > <
+                                    div
+                                    role = "presentation"
+                                    ref = {
+                                        (div) => {
+                                            this.contentDiv = div;
+                                        }
+                                    }
+                                    onClick = {
+                                        this.handleContentClick
+                                    } > {
+                                        _.has(video, 'content.videohash') && _.has(video, 'info.snaphash') &&
+                                        <
+                                        video
+                                        controls
+                                        src = {
+                                            `https://ipfs.io/ipfs/${video.content.videohash}`
+                                        }
+                                        poster = {
+                                            `https://ipfs.io/ipfs/${video.info.snaphash}`
+                                        } >
+                                        <
+                                        track kind = "captions" / >
+                                        <
+                                        /video>
+                                    } <
+                                    Body full body = {
+                                        post.body
+                                    }
+                                    json_metadata = {
+                                        post.json_metadata
+                                    }
+                                    /> < /
+                                    div > {
+                                        open && {
+                                            content
+                                        } <
+                                        Lightbox
+                                        mainSrc = {
+                                            images[index]
+                                        }
+                                        nextSrc = {
+                                            images[(index + 1) % images.length]
+                                        }
+                                        prevSrc = {
+                                            images[(index + (images.length - 1)) % images.length]
+                                        }
+                                        onCloseRequest = {
+                                            () => {
+                                                this.setState({
+                                                    lightbox: {
+                                                        ...this.state.lightbox,
+                                                        open: false,
+                                                    },
+                                                });
+                                            }
+                                        }
+                                        onMovePrevRequest = {
+                                            () =>
+                                            this.setState({
+                                                lightbox: {
+                                                    ...this.state.lightbox,
+                                                    index: (index + (images.length - 1)) % images.length,
+                                                },
+                                            })
+                                        }
+                                        onMoveNextRequest = {
+                                            () =>
+                                            this.setState({
+                                                lightbox: {
+                                                    ...this.state.lightbox,
+                                                    index: (index + (images.length + 1)) % images.length,
+                                                },
+                                            })
+                                        }
+                                        />} <
+                                        div className = "StoryFull__topics" > {
+                                            tags && tags.map(tag => < Topic key = {
+                                                    tag
+                                                }
+                                                name = {
+                                                    tag
+                                                }
+                                                />)} < /
+                                                div > {
+                                                    metaData.pullRequests && metaData.pullRequests.length > 0 ?
+                                                    <
+                                                    div >
+                                                    <
+                                                    h3 > < Icon type = "github" / > Linked Pull Requests < /h3> <
+                                                    ul className = "StoryFull__pullrequests" > {
+                                                        metaData.pullRequests.map(pr => ( <
+                                                            li key = {
+                                                                pr.id
+                                                            }
+                                                            className = "StoryFull__pullrequest" >
+                                                            <
+                                                            a target = "_blank"
+                                                            href = {
+                                                                pr.html_url
+                                                            } > {
+                                                                pr.title
+                                                            } < /a> < /
+                                                            li >
+                                                        ))
+                                                    } <
+                                                    /ul> < /
+                                                    div > : null
+                                                } {
+                                                    reviewed && < StoryFooter
+                                                    post = {
+                                                        post
+                                                    }
+                                                    postState = {
+                                                        postState
+                                                    }
+                                                    pendingLike = {
+                                                        pendingLike
+                                                    }
+                                                    onLikeClick = {
+                                                        onLikeClick
+                                                    }
+                                                    onShareClick = {
+                                                        onShareClick
+                                                    }
+                                                    />} < /
+                                                    div >
+                                                );
+                                            }
+                                        }
 
-export default StoryFull;
+                                        export default StoryFull;

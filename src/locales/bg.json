@@ -57,6 +57,7 @@
   "and_more_amount": "и {amount} още",
   "post_reply_title": "В отговор на",
   "post_reply_show_original_post": "Покажи оригиналната публикация",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Покажи цялата дискусия",
   "comment": "Коментар",
   "comment_placeholder": "Напиши коментар...",

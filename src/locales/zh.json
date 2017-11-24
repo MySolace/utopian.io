@@ -57,6 +57,7 @@
   "and_more_amount": "未显示 {amount}位",
   "post_reply_title": "回复： {title}",
   "post_reply_show_original_post": "显示原文",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "显示楼主",
   "comment": "评论",
   "comment_placeholder": "写评论",

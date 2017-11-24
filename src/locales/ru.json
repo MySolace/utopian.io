@@ -57,6 +57,7 @@
   "and_more_amount": "и ещё {amount}",
   "post_reply_title": "Это ответ на: {title}",
   "post_reply_show_original_post": "Показать оригинальный пост",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Показать предыдущее обсуждение",
   "comment": "Комментировать",
   "comment_placeholder": "Написать комментарий",

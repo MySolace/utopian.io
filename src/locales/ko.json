@@ -57,6 +57,7 @@
   "and_more_amount": "그 외 {amount}명 더",
   "post_reply_title": "다음 글에 대한 댓글: {title}",
   "post_reply_show_original_post": "원본 게시물 보기",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "상위 게시물 보기",
   "comment": "댓글",
   "comment_placeholder": "댓글 작성",

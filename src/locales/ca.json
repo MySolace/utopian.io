@@ -57,6 +57,7 @@
   "and_more_amount": "i {amount} mes",
   "post_reply_title": "Això es una resposta a: {title}",
   "post_reply_show_original_post": "Mostrar publicació original",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Mostrar publicació superior",
   "comment": "Comentari",
   "comment_placeholder": "Escriu un comentari",

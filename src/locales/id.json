@@ -57,6 +57,7 @@
   "and_more_amount": "dan {amount} lainnya",
   "post_reply_title": "Ini adalah komentar balasan untuk: {title}",
   "post_reply_show_original_post": "Tampilkan kiriman asli",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Tampilkan diskusi komentar",
   "comment": "Komentar",
   "comment_placeholder": "Tulis komentar",

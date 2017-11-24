@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import ReduxInfiniteScroll from 'redux-infinite-scroll';
 import _ from 'lodash';
+import { isPostDeleted } from '../helpers/postHelpers';
 import * as bookmarkActions from '../bookmarks/bookmarksActions';
 import * as reblogActions from '../app/Reblog/reblogActions';
 import * as postActions from '../post/postActions';
@@ -146,6 +147,8 @@ export default class Feed extends React.Component {
             isReported: userVote.percent < 0,
             userFollowed: followingList.includes(post.author),
           };
+
+	  if (isPostDeleted(post)) return null;
 
           const likePost =
             userVote.percent > 0

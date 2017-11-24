@@ -55,6 +55,7 @@
   "and_more_amount":"ja {amount} rohkem",
   "post_reply_title":"See on vastus: {title}",
   "post_reply_show_original_post":"Kuva originaal postitus",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion":"Näita kõrgemat arutelu",
   "comment":"Kommenteeri",
   "comment_placeholder":"Kirjuta kommentaar",

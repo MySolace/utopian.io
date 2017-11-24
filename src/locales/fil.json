@@ -55,6 +55,7 @@
   "and_more_amount":"at {amount} iba pa",
   "post_reply_title":"Ito ay sagot sa: {title}",
   "post_reply_show_original_post":"Ipakita ang orihinal na lathala",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion":"Ipakita ang nakatataas na usapan",
   "comment":"Komento",
   "comment_placeholder":"Magsulat ng komento",

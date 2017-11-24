@@ -57,6 +57,7 @@
   "and_more_amount": "en {amount} meer",
   "post_reply_title": "Dit is 'n antwoord op:{title}",
   "post_reply_show_original_post": "Sien oorspronklike pos",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Wys ouerbespreking",
   "comment": "Kommentaar",
   "comment_placeholder": "Skryf 'n opmerking",

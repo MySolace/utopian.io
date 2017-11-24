@@ -57,6 +57,7 @@
   "and_more_amount": "dan {amount} lagi",
   "post_reply_title": "Balas balik kepada: {title}",
   "post_reply_show_original_post": "Paparkan blog asal",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Paparkan perbincangan asal",
   "comment": "Komen",
   "comment_placeholder": "Tulis Komen",

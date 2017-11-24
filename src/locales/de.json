@@ -55,6 +55,7 @@
   "and_more_amount":"und {amount} mehr",
   "post_reply_title":"Dies ist eine Antwort auf: {title}",
   "post_reply_show_original_post":"Zeige ursprünglichen Beitrag",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion":"Übergeordnete Diskussion anzeigen",
   "comment":"Kommentieren",
   "comment_placeholder":"Kommentar schreiben",
