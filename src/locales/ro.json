@@ -57,6 +57,7 @@
   "and_more_amount": "adaugă încă {amount}",
   "post_reply_title": "Acesta este un răspuns la: {title}",
   "post_reply_show_original_post": "Arată postarea originală",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Arată postarea de care aparține",
   "comment": "Comentariu",
   "comment_placeholder": "Scrieți un comentariu",

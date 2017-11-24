@@ -57,6 +57,7 @@
   "and_more_amount": "och {amount} andra",
   "post_reply_title": "Det här är ett svar på: {title}",
   "post_reply_show_original_post": "Visa ursprungligt inlägg",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Visa överordnad diskussion",
   "comment": "Kommentera",
   "comment_placeholder": "Skriv en kommentar",

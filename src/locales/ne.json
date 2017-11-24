@@ -57,6 +57,7 @@
   "and_more_amount": "र {amount} थप",
   "post_reply_title": "यो पोष्टको लागि जवाफ हो: {title}",
   "post_reply_show_original_post": "मूल पोष्ट देखाउनुहोस्",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "मूल छलफल देखाउनुहोस्",
   "comment": "टिप्पणी",
   "comment_placeholder": "टिप्पणि लेख्नुहोस्",

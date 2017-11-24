@@ -57,6 +57,7 @@
   "and_more_amount": "và thêm {amount}",
   "post_reply_title": "Đây là trả lời đến: {title}",
   "post_reply_show_original_post": "Hiển thị các bài đăng gốc",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Hiển thị nguồn gốc thảo luận",
   "comment": "Bình luận",
   "comment_placeholder": "Viết một lời nhận xét",

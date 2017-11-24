@@ -55,6 +55,7 @@
   "and_more_amount":"and {amount} more",
   "post_reply_title":"This is a reply to: {title}",
   "post_reply_show_original_post":"Eredeti bejegyzés mutatása",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion":"Kiindulás mutatása",
   "comment":"Hozzászólás",
   "comment_placeholder":"Hozzászólás írása",

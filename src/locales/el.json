@@ -55,6 +55,7 @@
   "and_more_amount":"και {amount} ακόμα",
   "post_reply_title":"Αυτή είναι απάντηση στο: {title}",
   "post_reply_show_original_post":"Εμφάνισε το αρχικό ποστ",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion":"Εμφάνισε τη συζήτηση όπου ανήκει",
   "comment":"Σχολίασε το",
   "comment_placeholder":"Γράψε ένα σχόλιο",

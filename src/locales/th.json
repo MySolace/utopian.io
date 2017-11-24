@@ -57,6 +57,7 @@
   "and_more_amount": "และ {amount} เพิ่มเติม",
   "post_reply_title": "นี่คือการตอบกลับ {title}",
   "post_reply_show_original_post": "โชว์โพสต์ต้นฉบับ",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "แสดงการสนทนา",
   "comment": "ความคิดเห็น",
   "comment_placeholder": "เขียนความคิดเห็น",

@@ -57,6 +57,7 @@
   "and_more_amount": "மற்றும் {amount} மேலும்",
   "post_reply_title": "பதில் இதுதான்: {title}",
   "post_reply_show_original_post": "அசல் பதவியில் காட்டு",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "அசல் விவாதம் காட்டு",
   "comment": "கருத்துக்கள்",
   "comment_placeholder": "ஒரு கருத்து எழுத",

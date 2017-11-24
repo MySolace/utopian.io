@@ -57,6 +57,7 @@
   "and_more_amount": "ve {count} daha fazla",
   "post_reply_title": "Yanıtla: {title}",
   "post_reply_show_original_post": "Orijinali göster",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion": "Ana Tartışma göster",
   "comment": "Yorum",
   "comment_placeholder": "Bir yorum yazın",

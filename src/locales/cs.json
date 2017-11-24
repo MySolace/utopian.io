@@ -55,6 +55,7 @@
   "and_more_amount":"a dalších {amount}",
   "post_reply_title":"Odpověď na: {title}",
   "post_reply_show_original_post":"Zobrazit původní příspěvek",
+"post_deleted": "This post has been deleted",
   "post_reply_show_parent_discussion":"Zobrazit celé vlákno",
   "comment":"Komentář",
   "comment_placeholder":"Napište komentář",
