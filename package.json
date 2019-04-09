@@ -58,7 +58,7 @@
     "classnames": "^2.2.5",
     "config": "^1.26.2",
     "cross-env": "^5.0.5",
-    "css-loader": "^0.28.0",
+    "css-loader": "^1.0.0",
     "debug": "~2.2.0",
     "del": "^3.0.0",
     "diff-match-patch": "^1.0.0",
