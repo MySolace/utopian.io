@@ -112,7 +112,7 @@
     "redux-infinite-scroll": "^1.0.9",
     "redux-promise-middleware": "^4.0.0",
     "redux-thunk": "^2.1.0",
-    "remarkable": "^1.7.1",
+    "remarkable": "^1.7.2",
     "resize-observer-polyfill": "^1.4.2",
     "sanitize-html": "^1.13.0",
     "sc2-sdk": "^0.0.5",
