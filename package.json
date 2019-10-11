@@ -82,7 +82,7 @@
     "lodash-webpack-plugin": "^0.11.4",
     "matchmedia": "^0.1.2",
     "morgan": "^1.8.2",
-    "newrelic": "^1.40.0",
+    "newrelic": "^5.13.1",
     "nodemon": "^1.9.2",
     "npm-run-all": "^4.0.2",
     "postcss-flexbugs-fixes": "^3.0.0",
