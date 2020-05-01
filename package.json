@@ -28,7 +28,9 @@
     "heroku-postbuild": "npm run build",
     "cleanup-public": "gulp cleanup-public",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "pre-commit": [
     "test",
@@ -130,7 +132,8 @@
     "url-search-params-polyfill": "^2.0.0",
     "webpack": "^2.6.1",
     "webpack-visualizer-plugin": "^0.1.5",
-    "xmldom": "^0.1.27"
+    "xmldom": "^0.1.27",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.1.5",
@@ -163,5 +166,6 @@
     }
   },
   "repository": "https://github.com/utopian-io/utopian.io.git",
-  "license": "MIT"
+  "license": "MIT",
+  "snyk": true
 }
